@@ -1,0 +1,34 @@
+[project]
+name = "whiz"
+version = "0.1.0"
+description = "Extract explainable structured data from LLMs"
+readme = "README.md"
+authors = [
+    { name = "Olivier Breuleux", email = "breuleux@gmail.com" }
+]
+requires-python = ">=3.13"
+dependencies = [
+    "serieux>=0.0.7",
+    "wrapt>=1.17.2",
+]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[dependency-groups]
+dev = [
+    "pytest>=8.3.5",
+    "pytest-cov>=6.1.1",
+    "pytest-regressions>=2.7.0",
+]
+
+[tool.ruff]
+line-length = 99
+
+[tool.ruff.lint]
+extend-select = ["I"]
+ignore = ["F811", "F722"]
+
+[tool.ruff.lint.isort]
+combine-as-imports = true
