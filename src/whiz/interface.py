@@ -5,15 +5,16 @@ import gifnoc
 from .backends.base import backends, model_registry
 
 
-def ask[T](
-    data_model: Type[T],
-    data: str,
+def fill[T](
+    data_model: Type[T] | str,
+    prompt: str | None = None,
     *,
-    prompt: str = "Please fill in the information from the following text according to the schema:",
     backend: str | None = None,
     model: str | None = None,
     **backend_args,
 ) -> T:
+    if prompt is None:
+        prompt = "Generate to the best of your ability"
     if backend is None:
         assert model is not None
         if "::" in model:
@@ -23,7 +24,4 @@ def ask[T](
     if model is not None:
         backend_args = {**backend_args, "model": model}
     with gifnoc.overlay({backend: backend_args}):
-        return backends[backend](
-            data_model,
-            f"{prompt}\n\n{data}",
-        )
+        return backends[backend](data_model, prompt)
