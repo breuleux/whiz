@@ -1,16 +1,20 @@
 import json
+from functools import cached_property
 
-import requests
+import httpx
 
 from .base import TokenBackend, define_llm_backend
 
 
 class OpenAI(TokenBackend):
-    def __call__(self, data_model, prompt):
-        headers = {
+    @cached_property
+    def headers(self):
+        return {
             "Authorization": f"Bearer {self.token}",
             "Content-Type": "application/json",
         }
+
+    def __call__(self, data_model, prompt):
         payload = {
             "model": self.model,
             "messages": [{"role": "user", "content": prompt}],
@@ -24,11 +28,11 @@ class OpenAI(TokenBackend):
                 },
             },
         }
-        response = requests.post(
+        response = httpx.post(
             "https://api.openai.com/v1/chat/completions",
-            headers=headers,
+            headers=self.headers,
             json=payload,
-            stream=False,
+            timeout=30,
         )
         response.raise_for_status()
         result = response.json()

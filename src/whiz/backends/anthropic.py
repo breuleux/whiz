@@ -1,15 +1,20 @@
-import requests
+from functools import cached_property
+
+import httpx
 
 from .base import TokenBackend, define_llm_backend
 
 
 class Anthropic(TokenBackend):
-    def __call__(self, data_model, prompt):
-        headers = {
+    @cached_property
+    def headers(self):
+        return {
             "x-api-key": self.token,
             "anthropic-version": "2023-06-01",
             "content-type": "application/json",
         }
+
+    def __call__(self, data_model, prompt):
         payload = {
             "model": self.model,
             "max_tokens": 4096,
@@ -23,11 +28,11 @@ class Anthropic(TokenBackend):
             "tool_choice": {"type": "tool", "name": "record_analysis"},
             "messages": [{"role": "user", "content": prompt}],
         }
-        response = requests.post(
+        response = httpx.post(
             "https://api.anthropic.com/v1/messages",
-            headers=headers,
+            headers=self.headers,
             json=payload,
-            stream=False,
+            timeout=30,
         )
         result = response.json()
         answer = result["content"][0]
